@@ -33,7 +33,10 @@ import com.velocitypowered.proxy.tablist.KeyedVelocityTabList;
 import com.velocitypowered.proxy.tablist.VelocityTabList;
 import lombok.AccessLevel;
 import lombok.Getter;
+import me.wsl.chatcore2.proxy.ChatCore2;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.luckperms.api.model.user.User;
 import net.william278.velocitab.Velocitab;
 import net.william278.velocitab.api.PlayerAddedToTabEvent;
 import net.william278.velocitab.config.Group;
@@ -360,9 +363,23 @@ public class PlayerTabList {
             throw new IllegalArgumentException("TabList of viewer is not the same as the TabList of the entry");
         }
 
-        final String displayNameUnformatted = plugin.getPlaceholderManager().applyPlaceholders(player, player.getGroup().format(), viewer);
-        final Component displayName = formatRelationalComponent(player, viewer, displayNameUnformatted);
-        player.setRelationalDisplayName(viewer.getPlayer().getUniqueId(), displayName);
+        //final String displayNameUnformatted = plugin.getPlaceholderManager().applyPlaceholders(player, player.getGroup().format(), viewer);
+        //final Component displayName = formatRelationalComponent(player, viewer, displayNameUnformatted);
+
+        String preMsg = "";
+        if (player.getPlayer().getCurrentServer().isPresent()) preMsg = ChatCore2.getServerPrefix(player.getPlayer().getCurrentServer().get().getServerInfo().getName());
+        User user = ChatCore2.luckperms.getUserManager().getUser(player.getPlayer().getUniqueId());
+
+        String rankprefix = ChatCore2.getRankPrefix(user);
+        if (rankprefix != null && !rankprefix.isEmpty())
+            preMsg = ((Objects.equals(preMsg, "")) ? "" : preMsg + " ")
+                    + rankprefix;
+
+        preMsg = ((Objects.equals(preMsg, "")) ? "" : preMsg + " ")
+                + ChatCore2.getNickname(player.getPlayer());
+
+        final Component displayName = MiniMessage.miniMessage().deserialize(preMsg);
+                player.setRelationalDisplayName(viewer.getPlayer().getUniqueId(), displayName);
         return TabListEntry.builder()
                 .profile(player.getPlayer().getGameProfile())
                 .displayName(displayName)
@@ -372,6 +389,7 @@ public class PlayerTabList {
     }
 
     protected void calculateAndSetDisplayName(@NotNull TabPlayer player, @NotNull TabPlayer viewer) {
+        /*
         final String withPlaceholders = plugin.getPlaceholderManager().applyPlaceholders(player, player.getGroup().format());
         final String unformatted = plugin.getPlaceholderManager().formatVelocitabPlaceholders(withPlaceholders, player, null);
         if (!plugin.getSettings().isEnableRelationalPlaceholders() || !viewer.isRelationalPermission()) {
@@ -383,6 +401,22 @@ public class PlayerTabList {
 
         final String withRelationalPlaceholders = plugin.getPlaceholderManager().formatVelocitabPlaceholders(unformatted, player, viewer);
         final Component displayName = formatRelationalComponent(player, viewer, withRelationalPlaceholders);
+         */
+
+        String preMsg = "";
+        if (player.getPlayer().getCurrentServer().isPresent()) preMsg = ChatCore2.getServerPrefix(player.getPlayer().getCurrentServer().get().getServerInfo().getName());
+        User user = ChatCore2.luckperms.getUserManager().getUser(player.getPlayer().getUniqueId());
+
+        String rankprefix = ChatCore2.getRankPrefix(user);
+        if (rankprefix != null && !rankprefix.isEmpty())
+            preMsg = ((Objects.equals(preMsg, "")) ? "" : preMsg + " ")
+                    + rankprefix;
+
+        preMsg = ((Objects.equals(preMsg, "")) ? "" : preMsg + " ")
+                + ChatCore2.getNickname(player.getPlayer());
+
+        final Component displayName = MiniMessage.miniMessage().deserialize(preMsg);
+
         updateEntryDisplayName(player, viewer, displayName);
     }
 

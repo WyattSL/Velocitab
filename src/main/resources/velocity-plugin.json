@@ -20,6 +20,10 @@
     {
       "id": "miniplaceholders",
       "optional": true
+    },
+    {
+      "id": "chatcore2",
+      "optional": false
     }
   ],
   "main": "net.william278.velocitab.Velocitab"
